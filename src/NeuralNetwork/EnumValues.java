@@ -16,7 +16,7 @@ public class EnumValues {
     public enum InitializeMethod {
     ZEROS, RANDOM, GAUSSIAN_RANDOM
 }
-    
+    //Cost Function list for training the network
     public enum CostFunction {
         QUADRATIC, CROSS_ENTROPY
     }
