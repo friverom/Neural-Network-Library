@@ -1,20 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package NeuralNetwork;
 
 /**
- *
+ * 
  * @author Federico
  */
 public class EnumValues {
-    
+   
+    //Activation Functions List
     public enum ActivationFunction {
     SIGMOID, TANH, ArcTAN,  LINEAR, ELU, RELU, LEAKY_RELU, SOFTPLUS, SOFTMAX
 }
 
+    //Matrices Initalization method
     public enum InitializeMethod {
     ZEROS, RANDOM, GAUSSIAN_RANDOM
 }
