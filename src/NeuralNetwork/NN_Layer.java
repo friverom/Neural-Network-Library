@@ -3,6 +3,7 @@ package NeuralNetwork;
 
 import Matrix.Matrix;
 import NeuralNetwork.EnumValues.ActivationFunction;
+import NeuralNetwork.EnumValues.GradientDescent;
 import NeuralNetwork.EnumValues.InitializeMethod;
 import java.io.Serializable;
 
@@ -15,6 +16,7 @@ public class NN_Layer implements Serializable{
     
     private Matrix weights; //weights Matrix of size(#neurons x inputs)
     private Matrix delta_w; //Delta weights for Gradient Descend
+    private Matrix nesterov_deltas; //Deltas for Nesterov AGD
     private Matrix bias; //bias vector 
     private Matrix delta_b; //Delta bias for Gradient Descend
     private Matrix outputs; //Activation function results
@@ -23,22 +25,48 @@ public class NN_Layer implements Serializable{
     private ActivationFunction activation; //Activation Function Type
     private double learning_rate;
     private double lambda=0; //Regularization factor
+    private double n_factor=0;
     private InitializeMethod initialization; //Matrices initialization method
+    private GradientDescent gradientMethod;
     private double batch_count=0;
     private static final long serialVersionUID=2L;
     /**
      * Neural Network layer constructor
-     * @param definition "#in,#neurons,Activation Function, Initialization, learning rate
+     * @param definition "#in,#neurons,Activation Function, Initialization, 
+     * learning rate, lambda, Gradient Descent, Nesterov factor
      */
-    public NN_Layer(int inputs, int neurons, ActivationFunction act, InitializeMethod init,double lr,double lambda){
+    public NN_Layer(int inputs, int neurons, ActivationFunction act, InitializeMethod init,double lr,double lambda, GradientDescent grd, double n){
         
         //Set Matrices Initialization method
-        initialization=init;
+        this.initialization=init;
         //Set Activation Function
-        activation=act;
+        this.activation=act;
         
-        learning_rate=lr;
+        this.learning_rate=lr;
         this.lambda=lambda;
+        this.gradientMethod=grd;
+        this.n_factor=n;
+        //Initialize Matrices
+        createMatrices(inputs,neurons);
+        
+        }
+    
+    /**
+     * Neural Network layer constructor
+     * @param definition "#in,#neurons,Activation Function, Initialization, 
+     * learning rate, lambda, Gradient Descent
+     */
+    public NN_Layer(int inputs, int neurons, ActivationFunction act, InitializeMethod init,double lr,double lambda, GradientDescent grd){
+        
+        //Set Matrices Initialization method
+        this.initialization=init;
+        //Set Activation Function
+        this.activation=act;
+        
+        this.learning_rate=lr;
+        this.lambda=lambda;
+        this.gradientMethod=grd;
+        this.n_factor=0;
         //Initialize Matrices
         createMatrices(inputs,neurons);
         
@@ -51,11 +79,12 @@ public class NN_Layer implements Serializable{
     public NN_Layer(int inputs, int neurons){
         
         //Set Matrices Initialization method
-        initialization=InitializeMethod.GAUSSIAN_RANDOM;
+        this.initialization=InitializeMethod.GAUSSIAN_RANDOM;
         //Set ActivationFunction Function
-        activation=ActivationFunction.SIGMOID;
-        
-        learning_rate=0.05;
+        this.activation=ActivationFunction.SIGMOID;
+        this.gradientMethod=GradientDescent.SGD;
+        this.learning_rate=0.05;
+        this.lambda=0;
         //Initialize Matrices
         createMatrices(inputs,neurons);
         
@@ -71,6 +100,7 @@ public class NN_Layer implements Serializable{
             case ZEROS:
                 weights=new Matrix(neurons,inputs);
                 delta_w=new Matrix(neurons,inputs);
+                nesterov_deltas=new Matrix(neurons,inputs);
                 bias=new Matrix(neurons,1);
                 delta_b=new Matrix(neurons,1);
                 outputs=new Matrix(neurons,1);
@@ -81,6 +111,7 @@ public class NN_Layer implements Serializable{
             case RANDOM:
                 weights=Matrix.random(neurons, inputs);
                 delta_w=new Matrix(neurons,inputs);
+                nesterov_deltas=new Matrix(neurons,inputs);
                 bias=Matrix.random(neurons, 1);
                 delta_b=new Matrix(neurons,1);
                 outputs=new Matrix(neurons,1);
@@ -92,6 +123,7 @@ public class NN_Layer implements Serializable{
             case GAUSSIAN_RANDOM:
                 weights=Matrix.random_gaussian(neurons, inputs);
                 delta_w=new Matrix(neurons,inputs);
+                nesterov_deltas=new Matrix(neurons,inputs);
                 bias=Matrix.random_gaussian(neurons, 1);
                 delta_b=new Matrix(neurons,1);
                 outputs=new Matrix(neurons,1);
@@ -103,6 +135,7 @@ public class NN_Layer implements Serializable{
                 case XAVIER:
                 weights=Matrix.random_gaussian(neurons, inputs);
                 delta_w=new Matrix(neurons,inputs);
+                nesterov_deltas=new Matrix(neurons,inputs);
                 bias=Matrix.random_gaussian(neurons, 1);
                 delta_b=new Matrix(neurons,1);
                 outputs=new Matrix(neurons,1);
@@ -114,6 +147,7 @@ public class NN_Layer implements Serializable{
                 case HE:
                 weights=Matrix.random_gaussian(neurons, inputs);
                 delta_w=new Matrix(neurons,inputs);
+                nesterov_deltas=new Matrix(neurons,inputs);
                 bias=Matrix.random_gaussian(neurons, 1);
                 delta_b=new Matrix(neurons,1);
                 outputs=new Matrix(neurons,1);
@@ -123,6 +157,7 @@ public class NN_Layer implements Serializable{
             default:
                 weights=Matrix.random(neurons, inputs);
                 delta_w=new Matrix(neurons,inputs);
+                nesterov_deltas=new Matrix(neurons,inputs);
                 bias=Matrix.random(neurons, 1);
                 delta_b=new Matrix(neurons,1);
                 outputs=new Matrix(neurons,1);
@@ -207,15 +242,32 @@ public class NN_Layer implements Serializable{
         //Compute deltas
         delta_w=delta_w.scale(1/batch_count);
         delta_b=delta_b.scale(1/batch_count);
+        
         //Compute Reguralization values
         Matrix reg=L2_reguralize(weights);
         reg=reg.scale(1/batch_count);
         
-        //Compute Gradient Descend
-        weights=weights.minus(delta_w);
-        weights=weights.minus(reg);
-        bias=bias.minus(delta_b);
-        batch_count=0;
+        switch (gradientMethod) {
+            case SGD:
+                //Compute Gradient Descend
+                weights = weights.minus(delta_w);
+                weights = weights.minus(reg);
+                bias = bias.minus(delta_b);
+                break;
+            case NESTEROV:
+                delta_w=delta_w.minus(nesterov_deltas);
+                //Compute Gradient Descend
+                weights = weights.minus(delta_w);
+                weights = weights.minus(reg);
+                bias = bias.minus(delta_b);
+                nesterov_deltas=delta_w.scale(n_factor); //copy deltas to create deltas(t-1)
+                break;
+            default:
+                break;
+        }
+        
+        batch_count=0; //reset batch counter for next batch
+        
     }
     /**
      * Compute the gradient of the error for back propagation
