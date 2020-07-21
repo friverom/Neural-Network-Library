@@ -98,6 +98,28 @@ public class NN_Layer implements Serializable{
                 errors=new Matrix(neurons,1);
                 z=new Matrix(neurons,1);
                 break;
+            //Matrix elements initialize with random number with mean=0 and
+            //sd=sqrt(1/inputs)
+                case XAVIER:
+                weights=Matrix.random_gaussian(neurons, inputs);
+                delta_w=new Matrix(neurons,inputs);
+                bias=Matrix.random_gaussian(neurons, 1);
+                delta_b=new Matrix(neurons,1);
+                outputs=new Matrix(neurons,1);
+                errors=new Matrix(neurons,1);
+                z=new Matrix(neurons,1);
+                break;
+            //Matrix elements initialize with random number with mean=0 and
+            //sd=sqrt(2/inputs)
+                case HE:
+                weights=Matrix.random_gaussian(neurons, inputs);
+                delta_w=new Matrix(neurons,inputs);
+                bias=Matrix.random_gaussian(neurons, 1);
+                delta_b=new Matrix(neurons,1);
+                outputs=new Matrix(neurons,1);
+                errors=new Matrix(neurons,1);
+                z=new Matrix(neurons,1);
+                break;
             default:
                 weights=Matrix.random(neurons, inputs);
                 delta_w=new Matrix(neurons,inputs);
