@@ -8,6 +8,7 @@ import NeuralNetwork.EnumValues.ActivationFunction;
 import NeuralNetwork.EnumValues.CostFunction;
 import NeuralNetwork.EnumValues.InitializeMethod;
 import NeuralNetwork.EnumValues.CostFunction;
+import NeuralNetwork.EnumValues.GradientDescent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -26,6 +27,9 @@ public class NeuralNetwork implements Serializable{
     //index [0] is the first hidden layer and the last index is the output layer
     private NN_Layer[] layer;
     private String name;
+    private double learning_rate=0.05; //learning rate common to all layers
+    private double lambda=0; //Lambda factor for L2 reguralization of weights
+    private double n_factor=0; //Nesterov momemtum factor
     private int index=0; //To keep track of initialize layers
     
     private static long serialVersionUID=2L;
@@ -37,11 +41,14 @@ public class NeuralNetwork implements Serializable{
      * @param num_hidden_layers Number of hidden layers including the outputs
      * layer
      */
-    public NeuralNetwork(String name,int in,int num_hidden_layers){
+    public NeuralNetwork(String name,int in,int num_hidden_layers,double lr, double lambda){
         //Set up an array of layers to build the network
         //Last layer is the output layer
         layer=new NN_Layer[num_hidden_layers];
         this.name=name;
+        this.learning_rate=lr;
+        this.lambda=lambda;
+        
     }
     /**
      * Layer Builder Method. 
@@ -50,11 +57,28 @@ public class NeuralNetwork implements Serializable{
      * @param Neurons How many nodes contained in this layer 
      * @param act   Specify the Activation Function
      * @param init  Specify initialization Method for Matrices
-     * @param lr    Specify learning rate
+     * @param grd Gradient Descent Method
      */
-    public void layerBuilder(int Inputs, int Neurons, ActivationFunction act, InitializeMethod init, double lr,double lambda){
+    public void layerBuilder(int Inputs, int Neurons, ActivationFunction act, InitializeMethod init,GradientDescent grd){
         if(index<layer.length){
-            layer[index++]=new NN_Layer(Inputs,Neurons,act,init,lr,lambda);
+            layer[index++]=new NN_Layer(Inputs,Neurons,act,init,learning_rate,lambda,grd);
+        }else{
+            throw new RuntimeException("Layer number out of Bounds");
+        }
+    }
+    /**
+     * Layer Builder Method. 
+     * @param layerNum Layer Number in the network.(1..n)
+     * @param Inputs Specify the number of inputs to this layers
+     * @param Neurons How many nodes contained in this layer 
+     * @param act   Specify the Activation Function
+     * @param init  Specify initialization Method for Matrices
+     * @param grd Gradient Descent Method
+     * @param factor Nesterov momemtum factor
+     */
+    public void layerBuilder(int Inputs, int Neurons, ActivationFunction act, InitializeMethod init,GradientDescent grd, double factor){
+        if(index<layer.length){
+            layer[index++]=new NN_Layer(Inputs,Neurons,act,init,learning_rate,lambda,grd,factor);
         }else{
             throw new RuntimeException("Layer number out of Bounds");
         }
