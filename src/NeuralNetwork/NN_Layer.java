@@ -260,7 +260,7 @@ public class NN_Layer implements Serializable{
                 weights = weights.minus(delta_w);
                 weights = weights.minus(reg);
                 bias = bias.minus(delta_b);
-                nesterov_deltas=delta_w.scale(n_factor); //copy deltas to create deltas(t-1)
+                nesterov_deltas=delta_w.scale(0.0); //copy deltas to create deltas(t-1)
                 break;
             default:
                 break;

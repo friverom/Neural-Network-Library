@@ -231,7 +231,7 @@ public class NeuralNetwork implements Serializable{
     public double trainNetwork(Matrix[] in, Matrix[] targets,CostFunction cost) throws FileNotFoundException, IOException{
         int batch_size=in.length;
         double costError=0;
-        Matrix error;
+        Matrix error=new Matrix(in[0].getRows(),1);
         //Compute Output error based on cost function
         for(int i=0;i<batch_size;i++){
         switch(cost){
@@ -248,6 +248,7 @@ public class NeuralNetwork implements Serializable{
             default:
                 break;
         }
+        
         }
         //Save network to file
         File file=new File(name+".bin");
@@ -262,10 +263,11 @@ public class NeuralNetwork implements Serializable{
     
     public double trainNetwork(List<Matrix> in, List<Matrix> targets,CostFunction cost) throws FileNotFoundException, IOException{
         int batch_size=in.size();
+        Matrix error=new Matrix(in.get(0).getRows(),1);
         Iterator it_in=in.iterator();
         Iterator it_tg=targets.iterator();
         double costError=0;
-        Matrix error;
+        
         
         //Compute Output error based on cost function
         while(it_in.hasNext()){
@@ -285,7 +287,7 @@ public class NeuralNetwork implements Serializable{
             default:
                 break;
         }
-        }
+ }
         //Save network to file
         File file=new File(name+".bin");
         FileOutputStream fos=new FileOutputStream(file);
