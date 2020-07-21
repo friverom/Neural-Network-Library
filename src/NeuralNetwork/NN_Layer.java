@@ -349,6 +349,7 @@ public class NN_Layer implements Serializable{
                 derivatives=derivative_l_relu(z);
                 break;
             case SOFTMAX:
+                derivatives=derivative_softmax(z);
                 break;
             case SOFTPLUS:
                 derivatives=derivative_softplus(z);
@@ -690,6 +691,13 @@ public class NN_Layer implements Serializable{
             softmax.setValue(i+1, 1, Math.exp(m.getValue(i+1, 1))/sum);
         }
         return softmax;
+    }
+    private Matrix derivative_softmax(Matrix m){
+       Matrix deriv=new Matrix(m);
+        for(int i=0;i<deriv.getRows();i++){
+            deriv.setValue(i+1,1,1);
+        }
+        return deriv;
     }
     
     private Matrix L2_reguralize(Matrix m){
