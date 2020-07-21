@@ -1,19 +1,11 @@
 package Matrix;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-
-
 import java.io.Serializable;
 import java.util.Random;
 
 /**
  *
- * @author Federico
+ * 
  */
 final public class Matrix implements Serializable{
     private final int M;             // number of rows
@@ -47,16 +39,17 @@ final public class Matrix implements Serializable{
     // copy constructor
     public Matrix(Matrix A) { this(A.data); }
 
-    // create and return a random M-by-N matrix with values between 0 and 1
+    // create and return a random M-by-N matrix with values between -0.5 and 0.5
     public static Matrix random(int M, int N) {
         Matrix A = new Matrix(M, N);
         for (int i = 0; i < M; i++)
             for (int j = 0; j < N; j++)
-                A.data[i][j] = Math.random()-0.5;
+                A.data[i][j] = (Math.random()-0.5)*2;
         return A;
     }
     
-    // create and return a random M-by-N matrix with values between 0 and 1
+    // create and return a random M-by-N matrix with values between -1 and 1
+    //normally distributed with mean=0 and sd=1
     public static Matrix random_gaussian(int M, int N) {
         Random random=new Random();
         Matrix A = new Matrix(M, N);
@@ -66,6 +59,27 @@ final public class Matrix implements Serializable{
         return A;
     }
 
+    // create and return a random M-by-N matrix with values between -1 and 1
+    //normally distributed with mean=0 and sd=sqrt(1/n_inputs)
+    public static Matrix xavier(int M, int N) {
+        Random random=new Random();
+        Matrix A = new Matrix(M, N);
+        for (int i = 0; i < M; i++)
+            for (int j = 0; j < N; j++)
+                A.data[i][j] = random.nextGaussian()*Math.sqrt(1/M);
+        return A;
+    }
+    
+    // create and return a random M-by-N matrix with values between -1 and 1
+    //normally distributed with mean=0 and sd=sqrt(2/n_inputs)
+    public static Matrix he(int M, int N) {
+        Random random=new Random();
+        Matrix A = new Matrix(M, N);
+        for (int i = 0; i < M; i++)
+            for (int j = 0; j < N; j++)
+                A.data[i][j] = random.nextGaussian()*Math.sqrt(2/M);
+        return A;
+    }
     // create and return the N-by-N identity matrix
     public static Matrix identity(int N) {
         Matrix I = new Matrix(N, N);
