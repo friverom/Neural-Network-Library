@@ -14,7 +14,7 @@ public class EnumValues {
 
     //Matrices Initalization method
     public enum InitializeMethod {
-    ZEROS, RANDOM, GAUSSIAN_RANDOM
+    ZEROS, RANDOM, GAUSSIAN_RANDOM, XAVIER, HE
 }
     //Cost Function list for training the network
     public enum CostFunction {
