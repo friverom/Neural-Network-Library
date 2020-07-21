@@ -20,4 +20,9 @@ public class EnumValues {
     public enum CostFunction {
         QUADRATIC, CROSS_ENTROPY
     }
+    
+    //Gradient Descent Methods
+    public enum GradientDescent{
+        SGD,NESTEROV
+    }
 }
