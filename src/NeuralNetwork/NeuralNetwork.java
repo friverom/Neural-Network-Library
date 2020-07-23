@@ -194,7 +194,7 @@ public class NeuralNetwork implements Serializable{
         for(int i=0;i<m.getRows();i++){
             error+=m.getValue(i+1, 1);
         }
-        return error/m.getRows();
+        return error;
     }
     
     private double cross_entropy(Matrix guess, Matrix target){
@@ -225,7 +225,7 @@ public class NeuralNetwork implements Serializable{
             e=error.getValue(i+1, 1);
             sum+=e*e;
         }
-        return sum/(error.getRows());
+        return sum;
     }
     
     public double trainNetwork(Matrix[] in, Matrix[] targets,CostFunction cost) throws FileNotFoundException, IOException{
@@ -236,7 +236,8 @@ public class NeuralNetwork implements Serializable{
         for(int i=0;i<batch_size;i++){
         switch(cost){
             case QUADRATIC:
-                error=(makeGuess(in[i]).minus(targets[i])).times_hadamard(layer[layer.length-1].getActivationDerivates());
+                error=(makeGuess(in[i]).minus(targets[i]));
+                error=error.times_hadamard(layer[layer.length-1].getActivationDerivates());
                 costError+=convertError(error);
                 backPropagateError(error,in[i]);
                 break;
@@ -275,8 +276,9 @@ public class NeuralNetwork implements Serializable{
             Matrix target=(Matrix)it_tg.next();
         switch(cost){
             case QUADRATIC:
-                error=(makeGuess(input).minus(target).times_hadamard(layer[layer.length-1].getActivationDerivates()));
+                error=(makeGuess(input).minus(target));
                 costError+=Math.abs(convertError(error));
+                error=error.times_hadamard(layer[layer.length-1].getActivationDerivates());
                 backPropagateError(error,input);
                 break;
             case CROSS_ENTROPY:
