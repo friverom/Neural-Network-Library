@@ -25,4 +25,9 @@ public class EnumValues {
     public enum GradientDescent{
         SGD,NESTEROV
     }
+    
+    //Learning Algorithm
+    public enum LearningMethod{
+        ONLINE,MINI_BATCH,BATCH
+    }
 }
