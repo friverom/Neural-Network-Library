@@ -9,13 +9,16 @@ import NeuralNetwork.EnumValues.CostFunction;
 import NeuralNetwork.EnumValues.InitializeMethod;
 import NeuralNetwork.EnumValues.CostFunction;
 import NeuralNetwork.EnumValues.GradientDescent;
+import NeuralNetwork.EnumValues.LearningMethod;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 
 /**
@@ -237,8 +240,8 @@ public class NeuralNetwork implements Serializable{
         switch(cost){
             case QUADRATIC:
                 error=(makeGuess(in[i]).minus(targets[i]));
-                error=error.times_hadamard(layer[layer.length-1].getActivationDerivates());
                 costError+=convertError(error);
+                error=error.times_hadamard(layer[layer.length-1].getActivationDerivates());
                 backPropagateError(error,in[i]);
                 break;
             case CROSS_ENTROPY:
@@ -261,35 +264,40 @@ public class NeuralNetwork implements Serializable{
         
         return costError/batch_size;
     }
+    /**
+     *Train method. it can perform learning with 3 type of algorithm, ONLINE, BATCH, MINI BATCH
+     *ONLINE will adjust weights on each training sample.
+     *BATCH will adjust the weights once on the average gradients of all samples
+     *MINI Batch will adjust the weights once on the average gradients of all mini batches and will
+     *loops randomly through all training data.
+     *
+     * @param in List of train data
+     * @param targets List of targets
+     * @param cost Cost Function to compute errors
+     * @param learningMethod 
+     * @param miniBatch
+     * @return error
+     * @throws FileNotFoundException
+     * @throws IOException 
+     */
+     
     
-    public double trainNetwork(List<Matrix> in, List<Matrix> targets,CostFunction cost) throws FileNotFoundException, IOException{
-        int batch_size=in.size();
-        Matrix error=new Matrix(in.get(0).getRows(),1);
-        Iterator it_in=in.iterator();
-        Iterator it_tg=targets.iterator();
-        double costError=0;
+    public double trainNetwork(List<Matrix> in, List<Matrix> targets,CostFunction cost, LearningMethod learningMethod, int miniBatch) throws FileNotFoundException, IOException{
         
-        
-        //Compute Output error based on cost function
-        while(it_in.hasNext()){
-            Matrix input=(Matrix)it_in.next();
-            Matrix target=(Matrix)it_tg.next();
-        switch(cost){
-            case QUADRATIC:
-                error=(makeGuess(input).minus(target));
-                costError+=Math.abs(convertError(error));
-                error=error.times_hadamard(layer[layer.length-1].getActivationDerivates());
-                backPropagateError(error,input);
+        double error=0;
+        switch(learningMethod){
+            case ONLINE:
+                error=onlineTraining(in,targets,cost);
                 break;
-            case CROSS_ENTROPY:
-                error=makeGuess(input).minus(target);
-                costError+=Math.abs(convertError(error));
-                backPropagateError(error,input);
+            case BATCH:
+                error=batchTraining(in,targets,cost);
+                break;
+            case MINI_BATCH:
+                error=miniBatchTraining(in,targets,cost,miniBatch);
                 break;
             default:
                 break;
         }
- }
         //Save network to file
         File file=new File(name+".bin");
         FileOutputStream fos=new FileOutputStream(file);
@@ -297,10 +305,90 @@ public class NeuralNetwork implements Serializable{
         oos.writeObject(this);
         fos.flush();
         fos.close();
-        
-        return costError/batch_size;
+        return error;
     }
-    
+    //Creates a mini List of inputs and targets randomly from the inputs
+    private double miniBatchTraining(List<Matrix> in, List<Matrix> targets, CostFunction cost, int miniBatch){
+        //Create mini Batch List array
+        int miniBatchListSize=in.size()/miniBatch;
+        List<Matrix> mini_in_list=new ArrayList<>();
+        List<Matrix> mini_tg_list=new ArrayList<>();
+        Random random=new Random();
+        double error=0;
+        
+        int index=random.nextInt(in.size());
+        
+        for(int i=0;i<(miniBatchListSize-miniBatch);i++){
+            for(int j=0;j<miniBatch;j++){
+                Matrix m_in=new Matrix(in.get(index));
+                Matrix m_tg=new Matrix(targets.get(index));
+                mini_in_list.add(m_in);
+                mini_tg_list.add(m_tg);
+                index=random.nextInt(400);
+            }
+            error=batchTraining(mini_in_list, mini_tg_list,cost);
+            mini_in_list.clear();
+            mini_tg_list.clear();
+        }
+        return error;
+    }
+    private double batchTraining(List<Matrix> in, List<Matrix> targets, CostFunction cost) {
+        int data_size = in.size();
+        Matrix error = new Matrix(in.get(0).getRows(), 1);
+        Iterator it_in = in.iterator();
+        Iterator it_tg = targets.iterator();
+        double costError = 0;
+
+        //Compute Output error based on cost function
+        while (it_in.hasNext()) {
+            Matrix input = (Matrix) it_in.next();
+            Matrix target = (Matrix) it_tg.next();
+
+            error = computeError(input, target, cost);
+            costError += Math.abs(convertError(error));
+            backPropagateError(error, input);
+        }
+        gradientDescent();
+        return costError / data_size;
+    }
+
+    private double onlineTraining(List<Matrix> in, List<Matrix> targets, CostFunction cost) throws FileNotFoundException, IOException {
+        int data_size = in.size();
+        Matrix error = new Matrix(in.get(0).getRows(), 1);
+        Iterator it_in = in.iterator();
+        Iterator it_tg = targets.iterator();
+        double costError = 0;
+
+        //Compute Output error based on cost function
+        while (it_in.hasNext()) {
+            Matrix input = (Matrix) it_in.next();
+            Matrix target = (Matrix) it_tg.next();
+
+            error = computeError(input, target, cost);
+            costError += Math.abs(convertError(error));
+            backPropagateError(error, input);
+            gradientDescent();
+        }
+        return costError / data_size;
+    }
+    //Compute error base on cost function
+    private Matrix computeError(Matrix input, Matrix target, CostFunction cost ){
+        Matrix error=new Matrix(input.getRows(),1);
+               
+        switch(cost){
+            case QUADRATIC:
+                error=(makeGuess(input).minus(target));
+                error=error.times_hadamard(layer[layer.length-1].getActivationDerivates());
+                break;
+            case CROSS_ENTROPY:
+                error=makeGuess(input).minus(target);
+                break;
+            default:
+                break;
+        }
+        return error;
+    }
+    //Back propagate the errors
     private void backPropagateError(Matrix error, Matrix in){
         //Actualize output layer errors
         layer[layer.length-1].setErrors(error);
@@ -314,6 +402,10 @@ public class NeuralNetwork implements Serializable{
         for(int i=1;i<layer.length;i++){
             layer[i].adjustDeltaWeights(layer[i-1].getActivationOutputs());
         }
+        
+    }
+    
+    private void gradientDescent(){
         //Adjust weight matrices
         for(int i=0;i<layer.length;i++){
             layer[i].gradient_descend();
