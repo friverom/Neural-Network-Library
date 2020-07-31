@@ -188,6 +188,54 @@ public class NN_Layer implements Serializable{
     public int getNumInputs(){
         return weights.getCols();
     }
+    
+    public void setLearningRate(double rate){
+        learning_rate=rate;
+    }
+    
+    public double getLearningRate(){
+        return learning_rate;
+    }
+    
+    public void setLambda(double lambda){
+        this.lambda=lambda;
+    }
+    
+    public double getLambda(){
+        return lambda;
+    }
+    
+    public void setActivation(ActivationFunction act){
+        this.activation=act;
+    }
+    
+    public ActivationFunction getactivationFunction(){
+        return activation;
+    }
+    
+    public void setInitialization(InitializeMethod init){
+        this.initialization=init;
+    }
+    
+    public InitializeMethod getInitializaMethod(){
+        return initialization;
+    }
+    
+    public void setGradient(GradientDescent grad){
+        this.gradientMethod=grad;
+    }
+    
+    public GradientDescent getGradientDescent(){
+        return gradientMethod;
+    }
+    
+    public void setNesterovFactor(double fact){
+        this.n_factor=fact;
+    }
+    
+    public double getNesterovFactor(){
+        return n_factor;
+    }
     /**
      * Returns weights(Transpose) x errors to be used for backpropagation
      * @return Matrix
@@ -695,7 +743,8 @@ public class NN_Layer implements Serializable{
     private Matrix derivative_softmax(Matrix m){
        Matrix deriv=new Matrix(m);
         for(int i=0;i<deriv.getRows();i++){
-            deriv.setValue(i+1,1,1);
+            double s=m.getValue(i+1, 1);
+            deriv.setValue(i+1,1,s*(1-s));
         }
         return deriv;
     }
@@ -710,6 +759,8 @@ public class NN_Layer implements Serializable{
     }
     return r;
 } 
+    
+    
     public void printLayerInfo(){
         
         int weightColumns=weights.getCols();
@@ -735,6 +786,18 @@ public class NN_Layer implements Serializable{
         outputs.show();
         System.out.println("Errors Matrix");
         errors.show();
+    }
+    
+    public String getLayerInfo(){
+        int weightColumns=weights.getCols();
+        int weightRows=weights.getRows();
+        
+        int outputColumns=outputs.getCols();
+        int outputRows=outputs.getRows();
+        
+        String s=weightColumns+","+weightRows+",";
+        s+=activation+","+initialization+","+gradientMethod+","+n_factor;
+        return s;
     }
     
     

@@ -107,16 +107,17 @@ public class NeuralNetwork implements Serializable{
      * the next layer.
      * 
      */
-    public void checkNetworkIntegrity(){
-        
+    public String checkNetworkIntegrity() throws FileNotFoundException, IOException{
+        String s="0";
         for(int i=0;i<layer.length-1;i++){
             if(layer[i].getNumOutputs()!=layer[i+1].getNumInputs()){
-                String s="Network Integrity error at layer "+(i+1);
+                s="Network Integrity error at layer "+(i+1);
                 s+=" Outputs: "+layer[i].getNumOutputs();
                 s+=" next layer inputs: "+layer[i+1].getNumInputs();
-                throw new RuntimeException(s);
+             //   throw new RuntimeException(s);
             }
         }
+        return s; 
     }
     /**
      * Takes input Matrix and loops through the network feedforwarding results
@@ -411,6 +412,39 @@ public class NeuralNetwork implements Serializable{
             layer[i].gradient_descend();
         }
     }
+    
+    public void setLearningRate(double rate){
+        this.learning_rate=rate;
+        for(NN_Layer l:layer){
+            l.setLearningRate(rate);
+        }
+    }
+    
+    public double getLearningRate(){
+        return learning_rate;
+    }
+    
+    public void setNesterovFactor(double n_factor){
+        this.n_factor=n_factor;
+    }
+    
+    public double getNesterovFactor(){
+        return n_factor;
+    }
+    
+    public double getLambda(){
+        return lambda;
+    }
+    public void setLambda(double lambda){
+        this.lambda=lambda;
+        for(NN_Layer l:layer){
+            l.setLambda(lambda);
+        }
+    }
+    
+    public String getNetworkName(){
+        return name;
+    }
 public void printNetworkInfo(){
     System.out.println("Neural Network Information");
     System.out.println("Inputs: "+layer[0].getNumInputs());
@@ -421,6 +455,18 @@ public void printNetworkInfo(){
         System.out.printf("Layer %d Data\n",i+1);
         layer[i].printLayerInfo();
     }
-}        
+} 
+
+public List<String> getNetworkInfo(){
+    
+    List<String> str=new ArrayList<>();
+    String s=name+","+index+","+learning_rate+","+lambda;
+    str.add(s);
+    for(NN_Layer l:layer){
+        s=l.getLayerInfo();
+        str.add(s);
+    }
+    return str;
+}
 }
 
