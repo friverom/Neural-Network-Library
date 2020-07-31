@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.BlockingQueue;
 
 
 /**
@@ -34,6 +35,8 @@ public class NeuralNetwork implements Serializable{
     private double lambda=0; //Lambda factor for L2 reguralization of weights
     private double n_factor=0; //Nesterov momemtum factor
     private int index=0; //To keep track of initialize layers
+    private boolean queueFlag=false;
+    private BlockingQueue queue =null;
     
     private static long serialVersionUID=2L;
     
@@ -283,7 +286,7 @@ public class NeuralNetwork implements Serializable{
      */
      
     
-    public double trainNetwork(List<Matrix> in, List<Matrix> targets,CostFunction cost, LearningMethod learningMethod, int miniBatch) throws FileNotFoundException, IOException{
+    public double trainNetwork(List<Matrix> in, List<Matrix> targets,CostFunction cost, LearningMethod learningMethod, int miniBatch) throws FileNotFoundException, IOException, InterruptedException{
         
         double error=0;
         switch(learningMethod){
@@ -309,7 +312,7 @@ public class NeuralNetwork implements Serializable{
         return error;
     }
     //Creates a mini List of inputs and targets randomly from the inputs
-    private double miniBatchTraining(List<Matrix> in, List<Matrix> targets, CostFunction cost, int miniBatch){
+    private double miniBatchTraining(List<Matrix> in, List<Matrix> targets, CostFunction cost, int miniBatch) throws InterruptedException{
         //Create mini Batch List array
         int miniBatchListSize=in.size()/miniBatch;
         List<Matrix> mini_in_list=new ArrayList<>();
@@ -328,12 +331,15 @@ public class NeuralNetwork implements Serializable{
                 index=random.nextInt(400);
             }
             error=batchTraining(mini_in_list, mini_tg_list,cost);
+            if(queueFlag){
+                queue.put(error);
+            }
             mini_in_list.clear();
             mini_tg_list.clear();
         }
         return error;
     }
-    private double batchTraining(List<Matrix> in, List<Matrix> targets, CostFunction cost) {
+    private double batchTraining(List<Matrix> in, List<Matrix> targets, CostFunction cost) throws InterruptedException {
         int data_size = in.size();
         Matrix error = new Matrix(in.get(0).getRows(), 1);
         Iterator it_in = in.iterator();
@@ -350,10 +356,13 @@ public class NeuralNetwork implements Serializable{
             backPropagateError(error, input);
         }
         gradientDescent();
+        if(queueFlag){
+            queue.put(costError/data_size);
+        }
         return costError / data_size;
     }
 
-    private double onlineTraining(List<Matrix> in, List<Matrix> targets, CostFunction cost) throws FileNotFoundException, IOException {
+    private double onlineTraining(List<Matrix> in, List<Matrix> targets, CostFunction cost) throws FileNotFoundException, IOException, InterruptedException {
         int data_size = in.size();
         Matrix error = new Matrix(in.get(0).getRows(), 1);
         Iterator it_in = in.iterator();
@@ -369,6 +378,9 @@ public class NeuralNetwork implements Serializable{
             costError += Math.abs(convertError(error));
             backPropagateError(error, input);
             gradientDescent();
+        }
+        if(queueFlag){
+            queue.put(costError/data_size);
         }
         return costError / data_size;
     }
@@ -456,7 +468,10 @@ public void printNetworkInfo(){
         layer[i].printLayerInfo();
     }
 } 
-
+public void setQueue(BlockingQueue queue){
+    this.queue=queue;
+    queueFlag=true;
+}
 public List<String> getNetworkInfo(){
     
     List<String> str=new ArrayList<>();
