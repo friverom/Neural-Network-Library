@@ -36,8 +36,7 @@ public class NeuralNetwork implements Serializable{
     private double n_factor=0; //Nesterov momemtum factor
     private int index=0; //To keep track of initialize layers
     private boolean queueFlag=false;
-    private BlockingQueue queue =null;
-    
+        
     private static long serialVersionUID=2L;
     
     
@@ -328,12 +327,10 @@ public class NeuralNetwork implements Serializable{
                 Matrix m_tg=new Matrix(targets.get(index));
                 mini_in_list.add(m_in);
                 mini_tg_list.add(m_tg);
-                index=random.nextInt(400);
+                index=random.nextInt(in.size());
             }
             error=batchTraining(mini_in_list, mini_tg_list,cost);
-            if(queueFlag){
-                queue.put(error);
-            }
+            
             mini_in_list.clear();
             mini_tg_list.clear();
         }
@@ -355,10 +352,9 @@ public class NeuralNetwork implements Serializable{
             costError += Math.abs(convertError(error));
             backPropagateError(error, input);
         }
+        
         gradientDescent();
-        if(queueFlag){
-            queue.put(costError/data_size);
-        }
+        
         return costError / data_size;
     }
 
@@ -379,9 +375,7 @@ public class NeuralNetwork implements Serializable{
             backPropagateError(error, input);
             gradientDescent();
         }
-        if(queueFlag){
-            queue.put(costError/data_size);
-        }
+        
         return costError / data_size;
     }
     //Compute error base on cost function
@@ -468,10 +462,7 @@ public void printNetworkInfo(){
         layer[i].printLayerInfo();
     }
 } 
-public void setQueue(BlockingQueue queue){
-    this.queue=queue;
-    queueFlag=true;
-}
+
 public List<String> getNetworkInfo(){
     
     List<String> str=new ArrayList<>();
