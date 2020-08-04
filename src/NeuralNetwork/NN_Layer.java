@@ -744,7 +744,7 @@ public class NN_Layer implements Serializable{
        Matrix deriv=new Matrix(m);
         for(int i=0;i<deriv.getRows();i++){
             double s=m.getValue(i+1, 1);
-            deriv.setValue(i+1,1,s*(1-s));
+            deriv.setValue(i+1,1,1);
         }
         return deriv;
     }
