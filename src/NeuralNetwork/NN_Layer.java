@@ -745,18 +745,7 @@ public class NN_Layer implements Serializable{
        Matrix deriv=new Matrix(m);
        
        for(int i=0;i<deriv.getRows();i++){
-           double sum=0;
-           for(int j=0;j<m.getRows();j++){
-               if(i!=j){
-                   double si=m.getValue(i+1, 1);
-                   double sj=m.getValue(j+1, 1);
-                   sum=sum-si*sj;
-               }else{
-                   double s=m.getValue(i+1, 1);
-                   sum=sum+s*(1-s);
-               }
-           }
-           deriv.setValue(i+1, 1, sum);
+           deriv.setValue(i+1, 1, derivate_sigmoid(deriv.getValue(i+1, 1)));
        }
         return deriv;
     }

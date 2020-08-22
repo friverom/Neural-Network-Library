@@ -198,7 +198,7 @@ public class NeuralNetwork implements Serializable{
     private double convertError(Matrix m){
         double error=0;
         for(int i=0;i<m.getRows();i++){
-            error+=m.getValue(i+1, 1);
+            error+=Math.abs(m.getValue(i+1, 1));
         }
         return error;
     }
@@ -228,8 +228,8 @@ public class NeuralNetwork implements Serializable{
         double e=0;
         Matrix error=target.minus(guess);
         for(int i=0;i<error.getRows();i++){
-            e=error.getValue(i+1, 1);
-            sum+=e*e;
+            e=Math.abs(error.getValue(i+1, 1));
+            sum+=e;
         }
         return sum;
     }
@@ -388,12 +388,30 @@ public class NeuralNetwork implements Serializable{
                 error=error.times_hadamard(layer[layer.length-1].getActivationDerivates());
                 break;
             case CROSS_ENTROPY:
-                error=makeGuess(input).minus(target);
+                error=(makeGuess(input).minus(target));
+          //      error=error.times_hadamard(layer[layer.length-1].getActivationDerivates());
                 break;
             default:
                 break;
         }
         return error;
+    }
+    //Cross Entropy gradient calculation
+    //derivate=(guess-target)/(guess*(1-guess))
+    private Matrix cross_entropy_gradient(Matrix inputs,Matrix targets){
+        Matrix guess=makeGuess(inputs);
+        Matrix error=guess.minus(targets);
+        
+         Matrix grad=guess;
+        for(int i=0;i<guess.getRows();i++){
+            grad.setValue(i+1, 1, inv_res(error.getValue(i+1, i),guess.getValue(i+1, 1)));
+        }
+        return grad;
+    }
+
+    private double inv_res(double error, double guess ){
+        
+        return(error/(guess*(1-guess)));
     }
     //Back propagate the errors
     private void backPropagateError(Matrix error, Matrix in){
