@@ -450,6 +450,10 @@ public class NeuralNetwork implements Serializable{
     
     public void setNesterovFactor(double n_factor){
         this.n_factor=n_factor;
+        for(NN_Layer l:layer){
+        l.setNesterovFactor(n_factor);
+        }
+        
     }
     
     public double getNesterovFactor(){
