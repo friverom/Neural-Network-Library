@@ -320,7 +320,7 @@ public class NeuralNetwork implements Serializable{
         double error=0;
         
         int index=random.nextInt(in.size());
-        
+        //Generate List of mini batch size
         for(int i=0;i<(miniBatchListSize-miniBatch);i++){
             for(int j=0;j<miniBatch;j++){
                 Matrix m_in=new Matrix(in.get(index));

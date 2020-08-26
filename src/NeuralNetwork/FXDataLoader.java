@@ -21,4 +21,6 @@ public interface FXDataLoader {
      */
     public abstract List<Matrix> loadData(File file);
     
+    public abstract void loadDigitsData(String file, int samples);
+    
 }
