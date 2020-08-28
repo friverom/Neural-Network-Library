@@ -14,13 +14,14 @@ import javafx.stage.Stage;
 public interface FXDataLoader {
     
     /**
-     * Reads the file and converts data to Matrix type and creates a List<Matrix>
+     * This method reads the Data File and return a List of Matrix type
+     * with the data.
      * 
      * @param file
      * @return List<Matrix> Inputs data
      */
     public abstract List<Matrix> loadData(File file);
     
-    public abstract void loadDigitsData(String file, int samples);
+    
     
 }
