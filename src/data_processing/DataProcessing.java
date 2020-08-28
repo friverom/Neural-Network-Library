@@ -6,9 +6,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -259,7 +261,6 @@ public class DataProcessing {
      * @throws FileNotFoundException
      * @throws IOException
      */
-
     private static void replaceCol(String filename, List<String> list, int start) throws FileNotFoundException, IOException {
 
         File sourceFile = new File(filename + ".txt");
@@ -461,6 +462,74 @@ public class DataProcessing {
             }
         }
         return min;
+    }
+
+    /**
+     * This method converts a CSV file and creates a List of vectors with the
+     * values fields indicated on the starting and ending columns
+     *
+     * @param filename
+     * @param startCol
+     * @param endCol
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private static List<Matrix> loadData(String filename, int startCol, int endCol) throws FileNotFoundException, IOException, ClassNotFoundException {
+
+        List<Matrix> list = new ArrayList<>();
+        File file = new File(filename);
+        FileReader fr = new FileReader(file);
+        BufferedReader br = new BufferedReader(fr);
+
+        String data;
+        while ((data = br.readLine()) != null) {
+            Matrix m = createMatrix(data, startCol, endCol);
+            list.add(m);
+        }
+
+        return list;
+    }
+
+    /**
+     * This method creates a vector of values
+     *
+     * @param data
+     * @param start
+     * @param end
+     * @return
+     */
+    private static Matrix createMatrix(String data, int start, int end) {
+
+        String[] items = data.split(",");
+        Matrix matrix = new Matrix(end - start + 1, 1);
+
+        if (items.length > 1) {
+            for (int i = 0; i < matrix.getRows(); i++) {
+                double val = Double.parseDouble(items[(start - 1) + i]);
+                matrix.setValue(i + 1, 1, val);
+            }
+        }
+        return matrix;
+    }
+
+    /**
+     * This method save to file a List of vectors
+     *
+     * @param name
+     * @param m
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    private static void createFile(String name, List<Matrix> m) throws FileNotFoundException, IOException {
+        String filename = name + ".bin";
+        File file = new File(filename);
+        FileOutputStream fos = new FileOutputStream(file);
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(m);
+        fos.flush();
+        fos.close();
     }
 
 }
