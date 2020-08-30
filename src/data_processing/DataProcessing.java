@@ -26,6 +26,36 @@ import java.util.Random;
 public class DataProcessing {
 
     /**
+     * This method randomize in parallel two list<Matrix>.
+     * Swaps list items according to a random index
+     * @param list1 
+     * @param list2 
+     * @param Return false if list size are different. True if suceeded.
+     */
+    public static boolean randomizeList(List<Matrix> list1, List<Matrix> list2){
+        
+        if(list1.size()!=list2.size()){
+            return false;
+        }
+        
+        Random random=new Random();
+        int listSize=list1.size();
+        
+        for(int i=0;i<listSize;i++){
+            int index=random.nextInt(listSize);
+            //Swap items in list 1
+            Matrix m1=list1.get(i);
+            list1.set(i, list1.get(index));
+            list1.set(index, m1);
+            //Swap items in list 2
+            Matrix m2=list2.get(i);
+            list2.set(i, list2.get(index));
+            list2.set(index, m2);
+        }
+        return true;
+    }
+    
+    /**
      * This method takes a CSV file and creates a training data files and
      * testing data files. Test data files contains the last 20% of the list.
      * Training data file will be name as "filename"_train.txt Test data file
@@ -294,7 +324,7 @@ public class DataProcessing {
         br.close();
 
         sourceFile.delete();
-        new File("iris.tmp").renameTo(new File("iris.txt"));
+        new File(filename+".tmp").renameTo(new File(filename+".txt"));
 
     }
 
@@ -476,7 +506,7 @@ public class DataProcessing {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    private static List<Matrix> loadData(String filename, int startCol, int endCol) throws FileNotFoundException, IOException, ClassNotFoundException {
+    public static List<Matrix> loadData(String filename, int startCol, int endCol) throws FileNotFoundException, IOException, ClassNotFoundException {
 
         List<Matrix> list = new ArrayList<>();
         File file = new File(filename);
@@ -505,7 +535,7 @@ public class DataProcessing {
         String[] items = data.split(",");
         Matrix matrix = new Matrix(end - start + 1, 1);
 
-        if (items.length > 1) {
+        if (items.length >= (end-1)) {
             for (int i = 0; i < matrix.getRows(); i++) {
                 double val = Double.parseDouble(items[(start - 1) + i]);
                 matrix.setValue(i + 1, 1, val);
@@ -522,7 +552,7 @@ public class DataProcessing {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private static void createFile(String name, List<Matrix> m) throws FileNotFoundException, IOException {
+    public static void createFile(String name, List<Matrix> m) throws FileNotFoundException, IOException {
         String filename = name + ".bin";
         File file = new File(filename);
         FileOutputStream fos = new FileOutputStream(file);
