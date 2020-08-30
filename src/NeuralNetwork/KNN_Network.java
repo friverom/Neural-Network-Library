@@ -146,7 +146,7 @@ public class KNN_Network implements Serializable {
             //actualize the confusion matrix
             int row = (int) guess;
             int col = (int) tg.getValue(1, 1);
-            result.setValue(row, col, result.getValue(row, col) + 1);
+            result.setValue(row+1, col+1, result.getValue(row+1, col+1) + 1);
         }
         return result;
     }
