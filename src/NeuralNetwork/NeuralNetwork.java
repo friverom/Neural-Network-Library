@@ -151,21 +151,16 @@ public class NeuralNetwork implements Serializable {
      * @param cost QUADRATIC or CROSS_ENTROPY
      * @return error value
      */
-    public double evalNet(Matrix in, Matrix target, CostFunction cost) {
-        Matrix e = makeGuess(in);
-        double costError = 0;
-        //Compute Cost Function
-        switch (cost) {
-            case QUADRATIC:
-                costError = quadratic(e, target);
-                break;
-            case CROSS_ENTROPY:
-                costError = cross_entropy(e, target);
-                break;
-            default:
-                break;
-        }
-        return costError;
+    public double evalNet(List<Matrix> in, List<Matrix> target) {
+        
+        Matrix result=getEvalMatrix(in, target);
+        
+        double sum=0;
+                    for(int i=0;i<result.getRows();i++){
+                    sum+=result.getValue(i+1, i+1);
+                }
+                    double acc=sum/in.size();
+        return (1-acc);
     }
 
     /**
@@ -175,7 +170,7 @@ public class NeuralNetwork implements Serializable {
      * @param target
      * @return
      */
-    public Matrix evalNet(List<Matrix> in, List<Matrix> target) {
+    public Matrix getEvalMatrix(List<Matrix> in, List<Matrix> target) {
 
         int matrixSize = target.get(0).getRows();
         Matrix result = new Matrix(matrixSize, matrixSize);
