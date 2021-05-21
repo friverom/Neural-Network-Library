@@ -272,6 +272,7 @@ public class NeuralNetwork implements Serializable {
         for (int i = 0; i < guess.getRows(); i++) {
             error += cross_ent(guess.getValue(i + 1, 1), target.getValue(i + 1, 1));
         }
+        //Check why divide by number of outputs
         return (error / guess.getRows());
     }
 

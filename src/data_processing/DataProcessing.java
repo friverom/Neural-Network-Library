@@ -11,8 +11,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -65,7 +63,7 @@ public class DataProcessing {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public static void createFiles(String filename) throws FileNotFoundException, IOException {
+    public static void createFiles(File filename) throws FileNotFoundException, IOException {
 
         List<String> sourceFile = readLines(filename);
         List<String> train_data = new ArrayList<>();
@@ -81,8 +79,14 @@ public class DataProcessing {
             test_data.add(sourceFile.get(i));
         }
 
-        writeLines(filename + "_train", train_data);
-        writeLines(filename + "_test", test_data);
+        //Create training and test data files names
+        String fname=filename.getName();
+        String[] items=fname.split("\\.");
+        String TrainDataFile=filename.getAbsoluteFile().getParent()+"\\"+items[0]+"_train."+items[1];
+        String TestDataFile=filename.getAbsoluteFile().getParent()+"\\"+items[0]+"_test."+items[1];
+        
+        writeLines(TrainDataFile, train_data);
+        writeLines(TestDataFile, test_data);
 
     }
 
@@ -94,7 +98,7 @@ public class DataProcessing {
      * @param startCol Colum number of labels
      * @throws IOException
      */
-    public static void vectorizeLabels(String filename, int startCol) throws IOException {
+    public static void vectorizeLabels(File filename, int startCol) throws IOException {
 
         List<String> list = new ArrayList<>();
         List<Integer> labels = toInteger(getColData(filename, startCol));
@@ -124,7 +128,7 @@ public class DataProcessing {
      * @param filename CSV file with data
      * @throws IOException
      */
-    public static void randomize(String filename) throws IOException {
+    public static void randomize(File filename) throws IOException {
         Random random = new Random();
 
         List<String> lines = readLines(filename);
@@ -138,7 +142,7 @@ public class DataProcessing {
             lines.set(rand, temp);
         }
 
-        writeLines(filename, lines);
+        writeLines(filename.getAbsolutePath(), lines);
 
     }
 
@@ -151,7 +155,7 @@ public class DataProcessing {
      * @param label starting numerical value for labels
      * @throws IOException
      */
-    public static void setLabels(String filename, int startCol, int label) throws IOException {
+    public static void setLabels(File filename, int startCol, int label) throws IOException {
 
         List<String> list = getLabels(filename, startCol);
         List<String> labels = getColData(filename, startCol);
@@ -173,7 +177,7 @@ public class DataProcessing {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public static void normalize(String filename, int start, int end) throws FileNotFoundException, IOException {
+    public static void normalize(File filename, int start, int end) throws FileNotFoundException, IOException {
 
         for (int i = 0; i < (end - start) + 1; i++) {
             List<String> list = getColData(filename, start + i);
@@ -191,9 +195,10 @@ public class DataProcessing {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private static List<String> readLines(String filename) throws FileNotFoundException, IOException {
+    private static List<String> readLines(File filename) throws FileNotFoundException, IOException {
 
-        File file = new File(filename + ".txt");
+        File file = filename;
+        
         FileReader fr = new FileReader(file);
         BufferedReader br = new BufferedReader(fr);
 
@@ -214,7 +219,7 @@ public class DataProcessing {
      */
     private static void writeLines(String filename, List<String> lines) throws IOException {
 
-        File file = new File(filename + ".txt");
+        File file = new File(filename);
         FileWriter fw = new FileWriter(file);
         BufferedWriter bw = new BufferedWriter(fw);
 
@@ -258,9 +263,9 @@ public class DataProcessing {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private static List<String> getLabels(String filename, int startCol) throws FileNotFoundException, IOException {
+    private static List<String> getLabels(File filename, int startCol) throws FileNotFoundException, IOException {
 
-        FileReader fr = new FileReader(filename + ".txt");
+        FileReader fr = new FileReader(filename);
         BufferedReader br = new BufferedReader(fr);
 
         String line;
@@ -291,13 +296,17 @@ public class DataProcessing {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private static void replaceCol(String filename, List<String> list, int start) throws FileNotFoundException, IOException {
+    private static void replaceCol(File filename, List<String> list, int start) throws FileNotFoundException, IOException {
+     //   private static void replaceCol(String filename, List<String> list, int start) throws FileNotFoundException, IOException {
 
-        File sourceFile = new File(filename + ".txt");
+        File sourceFile = filename;
+        String directory=filename.getAbsoluteFile().getParent();
+        directory+="\\";
+     //   File sourceFile = new File(filename + ".txt");
         FileReader fr = new FileReader(sourceFile);
         BufferedReader br = new BufferedReader(fr);
 
-        File tempFile = new File(filename + ".tmp");
+        File tempFile = new File("temporary.tmp");
         FileWriter fw = new FileWriter(tempFile);
         BufferedWriter bw = new BufferedWriter(fw);
 
@@ -324,7 +333,7 @@ public class DataProcessing {
         br.close();
 
         sourceFile.delete();
-        new File(filename+".tmp").renameTo(new File(filename+".txt"));
+        new File("temporary.tmp").renameTo(new File(directory+filename.getName().toString()));
 
     }
 
@@ -337,9 +346,9 @@ public class DataProcessing {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private static List<String> getColData(String name, int start) throws FileNotFoundException, IOException {
+    private static List<String> getColData(File name, int start) throws FileNotFoundException, IOException {
 
-        File file = new File(name + ".txt");
+        File file = name;
         FileReader fr = new FileReader(file);
         BufferedReader br = new BufferedReader(fr);
 

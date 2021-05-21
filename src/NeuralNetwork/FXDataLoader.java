@@ -4,8 +4,6 @@ package NeuralNetwork;
 import Matrix.Matrix;
 import java.io.File;
 import java.util.List;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 /**
  * 
