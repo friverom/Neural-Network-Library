@@ -255,5 +255,17 @@ final public class Matrix implements Serializable{
             System.out.println();
         }
     }
+    
+    //Return Matrix as String
+    public String getMatrixAsString(){
+        
+        String s="";
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < N; j++) 
+                s+=String.format("%9.4f ", data[i][j]);
+            s+="\n";
+        }
+        return s;
+    }
 
 }

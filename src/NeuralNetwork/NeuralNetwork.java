@@ -148,7 +148,6 @@ public class NeuralNetwork implements Serializable {
      *
      * @param in Inputs to the Network
      * @param target Expected results
-     * @param cost QUADRATIC or CROSS_ENTROPY
      * @return error value
      */
     public double evalNet(List<Matrix> in, List<Matrix> target) {
@@ -160,7 +159,7 @@ public class NeuralNetwork implements Serializable {
                     sum+=result.getValue(i+1, i+1);
                 }
                     double acc=sum/in.size();
-        return (1-acc);
+        return acc;
     }
 
     /**

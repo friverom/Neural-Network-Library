@@ -63,18 +63,21 @@ public class DataProcessing {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public static void createFiles(File filename) throws FileNotFoundException, IOException {
+    public static void createFiles(File filename, String range) throws FileNotFoundException, IOException {
 
         List<String> sourceFile = readLines(filename);
         List<String> train_data = new ArrayList<>();
         List<String> test_data = new ArrayList<>();
 
         int listSize = (int) (sourceFile.size() * 0.8);
-
+        
+        //First line contains input and target range info
+        train_data.add(range);
         for (int i = 0; i < listSize; i++) {
             train_data.add(sourceFile.get(i));
         }
 
+        test_data.add(range);
         for (int i = listSize; i < sourceFile.size(); i++) {
             test_data.add(sourceFile.get(i));
         }
@@ -515,10 +518,10 @@ public class DataProcessing {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static List<Matrix> loadData(String filename, int startCol, int endCol) throws FileNotFoundException, IOException, ClassNotFoundException {
+    public static List<Matrix> loadData(File filename, int startCol, int endCol) throws FileNotFoundException, IOException, ClassNotFoundException {
 
         List<Matrix> list = new ArrayList<>();
-        File file = new File(filename);
+        File file = filename;
         FileReader fr = new FileReader(file);
         BufferedReader br = new BufferedReader(fr);
 
@@ -527,10 +530,42 @@ public class DataProcessing {
             Matrix m = createMatrix(data, startCol, endCol);
             list.add(m);
         }
-
+        
         return list;
     }
 
+    public static List<Matrix> loadDataInputs(File filename) throws FileNotFoundException, IOException, ClassNotFoundException{
+    
+        //Get first line and extract input and target range
+        File file = filename;
+        FileReader fr = new FileReader(file);
+        BufferedReader br = new BufferedReader(fr);
+        
+        String range=br.readLine();
+        String[] items=range.split(",");
+        int isc=Integer.parseInt(items[0]);
+        int iec=Integer.parseInt(items[1]);
+        br.close();
+        fr.close();
+        
+        return loadData(filename,isc,iec);
+    }
+    
+    public static List<Matrix> loadDataTargets(File filename) throws FileNotFoundException, IOException, ClassNotFoundException{
+    //Get first line and extract input and target range
+        File file = filename;
+        FileReader fr = new FileReader(file);
+        BufferedReader br = new BufferedReader(fr);
+        
+        String range=br.readLine();
+        String[] items=range.split(",");
+        int isc=Integer.parseInt(items[2]);
+        int iec=Integer.parseInt(items[3]);
+        br.close();
+        fr.close();
+        
+        return loadData(filename,isc,iec);
+    }
     /**
      * This method creates a vector of values
      *
