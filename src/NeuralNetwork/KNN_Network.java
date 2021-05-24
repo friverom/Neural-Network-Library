@@ -35,6 +35,7 @@ public class KNN_Network implements Serializable {
      * @param k_factor K factor
      */
     public KNN_Network(String name, List<Matrix> train_inputs, List<Matrix> train_targets, int k_factor) throws FileNotFoundException, IOException {
+        this.name=name;
         //Copy training data into local training lists.
         this.train_inputs = new ArrayList<>(train_inputs);
         Collections.copy(this.train_inputs, train_inputs);
@@ -42,15 +43,15 @@ public class KNN_Network implements Serializable {
         Collections.copy(this.train_targets, train_targets);
         this.k_factor = k_factor;
         //Save the KNN object
-        this.name = name + ".bin";
-        target_matrix_size = ((int) getMax(this.train_targets) - (int) getMin(this.train_targets)) + 1;
-        File file = new File(this.name);
-        FileOutputStream fos = new FileOutputStream(file);
-        ObjectOutputStream oos = new ObjectOutputStream(fos);
-
-        oos.writeObject(this);
-        fos.flush();
-        fos.close();
+//        this.name = name + ".bin";
+//        target_matrix_size = ((int) getMax(this.train_targets) - (int) getMin(this.train_targets)) + 1;
+//        File file = new File(this.name);
+//        FileOutputStream fos = new FileOutputStream(file);
+//        ObjectOutputStream oos = new ObjectOutputStream(fos);
+//
+//        oos.writeObject(this);
+//        fos.flush();
+//        fos.close();
 
     }
 
@@ -224,5 +225,8 @@ public class KNN_Network implements Serializable {
             this.target = target;
         }
 
+    }
+    public String getName(){
+        return this.name;
     }
 }
