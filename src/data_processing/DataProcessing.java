@@ -101,7 +101,7 @@ public class DataProcessing {
      * @param startCol Colum number of labels
      * @throws IOException
      */
-    public static void vectorizeLabels(File filename, int startCol) throws IOException {
+    public static int vectorizeLabels(File filename, int startCol) throws IOException {
 
         List<String> list = new ArrayList<>();
         List<Integer> labels = toInteger(getColData(filename, startCol));
@@ -123,6 +123,9 @@ public class DataProcessing {
             list.add(str);
         }
         replaceCol(filename, list, startCol);
+        
+        //Returns a number to be added to the target end range
+        return (maxValue-minValue);
     }
 
     /**
@@ -259,6 +262,8 @@ public class DataProcessing {
 
     /**
      * This method takes a CSV file and extract the label field indicated.
+     * Then creates a List<String> with only one instance of each different
+     * labels in the column
      *
      * @param filename
      * @param startCol Labels Field
@@ -386,7 +391,7 @@ public class DataProcessing {
     }
 
     /**
-     * This method converts a List of Integers to String values
+     * This method converts a List of Strings to Integer values
      *
      * @param list
      * @return

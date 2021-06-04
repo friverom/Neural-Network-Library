@@ -151,6 +151,27 @@ public class KNN_Network implements Serializable {
         }
         return result;
     }
+    
+    public double getAccuracy(Matrix confM){
+        
+          int rows=confM.getRows();
+          int total=0;
+          int good_guess=0;
+          
+          for(int i=0;i<rows;i++){
+              for(int j=0;j<rows;j++){
+                  total+=confM.getValue(i+1, j+1);
+              }
+          }
+          
+          for(int i=0;i<rows;i++){
+              good_guess+=confM.getValue(i+1, i+1);
+          }
+          
+          double err=(double)good_guess/total;
+          
+          return err;
+    }
 
     //This method vectorize label (double) value to a matrix type.
     //if label values are 1,2,3 the vector will be of size 3.
@@ -207,7 +228,7 @@ public class KNN_Network implements Serializable {
             }
             index++;
         }
-        System.out.println("Label: " + label);
+      //  System.out.println("Label: " + label);
         return max;
 
     }
@@ -228,5 +249,11 @@ public class KNN_Network implements Serializable {
     }
     public String getName(){
         return this.name;
+    }
+    public int getk_Factor(){
+        return k_factor;
+    }
+    public void setk_Factor(int k){
+        this.k_factor=k;
     }
 }
