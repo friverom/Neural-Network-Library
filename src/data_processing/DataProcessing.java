@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import static java.util.Collections.list;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -609,6 +610,55 @@ public class DataProcessing {
         oos.writeObject(m);
         fos.flush();
         fos.close();
+    }
+    
+    /**
+     * Returns the mean value of the values in the list
+     * @param list
+     * @return double mean
+     */
+    public static double mean(List<Double> list){
+        
+        double sum=0;
+        
+        for(Double x:list){
+            sum+=x;
+        }
+        
+        double mean=sum/list.size();
+        
+        return mean;
+        
+    }
+    
+    /**
+     * Returns the variance of the values in the list
+     * @param list
+     * @return double variance
+     */
+    public static double variance(List<Double> list){
+        
+        double mean=mean(list);
+        double sum=0;
+        
+        for(Double x:list){
+            sum+=Math.pow(x-mean, 2);
+        }
+        
+        double var=(sum/(list.size()-1));
+        
+     return var;
+    }
+    
+    /**
+     * Returns the standard deviation of the values in the list
+     * @param list
+     * @return double standard deviation
+     */
+    public static double standard_deviation(List<Double> list){
+        
+        return Math.sqrt(variance(list));
+         
     }
 
 }
