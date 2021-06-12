@@ -613,6 +613,26 @@ public class DataProcessing {
     }
     
     /**
+     * Returns the mean value of each column in the matrix
+     * @param m
+     * @return matrix mean
+     */
+    public static Matrix mean(Matrix m){
+        //Determine mean Matrix size
+        Matrix mean=new Matrix(1,m.getCols());
+        
+        //Compute the mean for each column
+        for (int i = 0; i < m.getCols(); i++) {
+            double x=0;
+            for(int j=0;j<m.getRows();j++){
+                x+=m.getValue(1, j+1);
+            }
+            x=x/m.getRows();
+            mean.setValue(1, i+1, x);
+        }
+        return mean;
+    }
+    /**
      * Returns the mean value of the values in the list
      * @param list
      * @return double mean
@@ -632,6 +652,26 @@ public class DataProcessing {
     }
     
     /**
+     * Returns the variance of each column in the matrix
+     * @param m
+     * @return 
+     */
+    public static Matrix variance(Matrix m){
+        
+        Matrix mean=mean(m);
+        Matrix var=new Matrix(1,m.getCols());
+        
+        for(int i=0;i<m.getCols();i++){
+            double sum=0;
+            for(int j=0;j<m.getRows();j++){
+                sum+=Math.pow((m.getValue(j+1, i+1)-mean.getValue(1, j+1)), 2);
+            }
+            var.setValue(1, i+1, sum/(m.getRows()-1));
+        }
+        return var;
+        
+    }
+    /**
      * Returns the variance of the values in the list
      * @param list
      * @return double variance
@@ -650,6 +690,20 @@ public class DataProcessing {
      return var;
     }
     
+    /**
+     * Returns the standard deviation of the values in each column
+     * @param m
+     * @return 
+     */
+    public static Matrix standard_deviation(Matrix m){
+        
+        Matrix std=new Matrix(1,m.getCols());
+        
+        for(int i=0;i<m.getRows();i++){
+            std.setValue(1, i+1, Math.sqrt(m.getValue(1, i+1)));
+        }
+        return std;
+    }
     /**
      * Returns the standard deviation of the values in the list
      * @param list
