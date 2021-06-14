@@ -193,6 +193,14 @@ public class DataProcessing {
         }
     }
 
+    public static void standardize(File filename, int start, int end) throws IOException{
+        
+        for (int i = 0; i < (end - start) + 1; i++) {
+            List<String> list = getColData(filename, start + i);
+            List<String> newList = toString(standard_list(toDouble(list)));
+            replaceCol(filename, newList, start + i);
+        }
+    }
     /**
      * This method reads a CSV file and returns as a String all lines in the
      * file
@@ -713,6 +721,59 @@ public class DataProcessing {
         
         return Math.sqrt(variance(list));
          
+    }
+    
+    /**
+     * Returns the covariance matrix of the list supplied
+     * @param list
+     * @return 
+     */
+    public static Matrix cov_Matrix(List<List<Double>> list){
+        
+        Matrix cov_matrix=new Matrix(list.size(),list.size());
+        
+        for(int i=0;i<list.size();i++){
+            for(int j=i;j<list.size();j++){
+                double cov=covariance(list.get(i),list.get(j));
+                cov_matrix.setValue(i+1, j+1, cov);
+                cov_matrix.setValue(j+1, i+1, cov);
+            }
+        }
+        return cov_matrix;
+    }
+    /**
+     * Returns the covariance of the two list supplied
+     * @param l1
+     * @param l2
+     * @return 
+     */
+    public static double covariance(List<Double> l1, List<Double> l2){
+        
+        double mean1=mean(l1);
+        double mean2=mean(l2);
+        
+        double sum=0;
+        for(int i=0;i<l1.size();i++){
+           sum+=(l1.get(i)-mean1)*(l2.get(i)-mean2);
+        }
+        return sum/(l1.size()-1);
+    }
+    
+    /**
+     * This method standardize the values in the list. std=(x-mean)/std
+     * @param list
+     * @return 
+     */
+    public static List<Double> standard_list(List<Double> list){
+        
+        List<Double> standard=new ArrayList<>();
+        double mean=mean(list);
+        double std=standard_deviation(list);
+        
+        for(double d:list){
+            standard.add((d-mean)/std);
+        }
+        return standard;
     }
 
 }
