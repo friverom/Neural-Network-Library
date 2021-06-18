@@ -12,7 +12,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import static java.util.Collections.list;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -192,7 +191,35 @@ public class DataProcessing {
             replaceCol(filename, newList, start + i);
         }
     }
+    
+    public static Matrix covariance_matrix(File filename) throws FileNotFoundException, IOException{
+        
+        File file = filename;
+        
+        FileReader fr = new FileReader(file);
+        BufferedReader br = new BufferedReader(fr);
 
+        String line=br.readLine();
+        String[] items=line.split(",");
+        
+        br.close();
+        fr.close();
+        List<List<Double>> list=new ArrayList<>();
+        
+        for(int i=0;i<items.length;i++){
+            list.add(toDouble(getColData(filename, i+1)));
+        }
+        return cov_Matrix(list);
+        
+    }
+
+    /**
+     * Standardize values specified. = (x-mean)/stdev
+     * @param filename
+     * @param start
+     * @param end
+     * @throws IOException 
+     */
     public static void standardize(File filename, int start, int end) throws IOException{
         
         for (int i = 0; i < (end - start) + 1; i++) {
